@@ -3,6 +3,8 @@
 
 
 describe('Central de Atendimento ao Cliente TAT', function() {
+    const THREE_SECONDS_IN_MS = 3000
+
     beforeEach(function() {
         cy.visit('./src/index.html')
     })
@@ -13,6 +15,8 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     it('preenche os campos obrigatórios e envia o formulário', function() {
         const longText = 'Test, teste, teste, teste, teste, teste, teste, teste, teste'
 
+        cy.clock()
+
         cy.get('#firstName').type('Stevan')
         cy.get('#lastName').type('Oliveira')
         cy.get('#email').type('stevan.oliveira@valtech.com')
@@ -20,9 +24,15 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('button[type="submit"]').click()
         
         cy.get('.success').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.success').should('not.be.visible')        
     })
 
     it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
+        cy.clock()
+
         cy.get('#firstName').type('Stevan')
         cy.get('#lastName').type('Oliveira')
         cy.get('#email').type('stevan.oliveira@valtech,com')
@@ -30,6 +40,12 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('button[type="submit"]').click()
 
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.error').should('not.be.visible')
+      
+       
     })
 
     it('campo telefone continua vazio quando preenchido com valor não-numérico', function(){
@@ -39,6 +55,8 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     })
 
     it('exibe a mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
+        cy.clock()
+
         cy.get('#firstName').type('Stevan')
         cy.get('#lastName').type('Oliveira')
         cy.get('#email').type('stevan.oliveira@valtech.com')
@@ -47,6 +65,10 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.contains('button', 'Enviar').click()
 
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.error').should('not.be.visible')
     })
 
     it('preenche e limpa os campos nome, sobrenome, email e telefone', function() {
@@ -73,14 +95,27 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     })
 
     it('exibe a mensagem de erro ao submeter o formulário sem preencher os campos obrigatórios', function() {
+        cy.clock()
+
         cy.get('button[type="submit"]').click()
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.error').should('not.be.visible')
+
     })
 
     it('envia o formulário usando um comando customizado', function() {
+        cy.clock()
+
         cy.fillMandatoryFieldsAndSubmit()
 
         cy.get('.success').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.success').should('not.be.visible')
     })
 
     it('seleciona um produto (Youtube) por seu texto', function() {
