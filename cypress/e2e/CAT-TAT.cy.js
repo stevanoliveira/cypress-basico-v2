@@ -38,22 +38,22 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('#email').type('stevan.oliveira@valtech,com')
         cy.get('#open-text-area').type('Test') 
         cy.get('button[type="submit"]').click()
-
+        
         cy.get('.error').should('be.visible')
 
         cy.tick(THREE_SECONDS_IN_MS)
 
         cy.get('.error').should('not.be.visible')
       
-       
+
     })
 
     Cypress._.times(3, function() {
-        it.only('campo telefone continua vazio quando preenchido com valor não-numérico', function(){
-         cy.get('#phone')
-          .type('abcdefghij')
-          .should('have.value', '')
-       })
+        it('campo telefone continua vazio quando preenchido com valor não-numérico', function(){
+          cy.get('#phone')
+            .type('abcdefghij')
+            .should('have.value', '')
+      })
     })
 
     it('exibe a mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
@@ -189,14 +189,50 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('#privacy a').should('have.attr', 'target', '_blank') 
    })
 
-   it('acessa a página da política de privacidade removendo o target e então clicando no link', function() {
-        cy.get('#privacy a')
-          .invoke('removeAttr', 'target') 
-          .click()  
+   it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
 
-        cy.contains('Talking About Testing')
-          .should('be.visible')  
-   })
+  it('preenche a area de texto usando o comando invoke', function() {
+    const longText = Cypress._.repeat('0123456789', 20)
 
+    cy.get('#open-text-area')
+      .invoke('val', longText)
+      .should('have.value', longText)
+  })
 
+ 
+  it('faz uma requisição HTTP', function() { 
+    cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html')
+      .should(function(response) {
+        const { status, statusText, body} = response
+        expect(status).to.equal(200)
+        expect(statusText).to.equal('OK')
+        expect(body).to.include('CAC TAT')
+      })
+
+  })
+
+  it('encontra o gato escondido', function() {
+    cy.get('#cat')
+      .invoke('show')
+      .should('be.visible')
+    cy.get('#title')
+      .invoke('text', 'CAT TAT')  
+    cy.get('#subtitle')
+      .invoke('text', 'Eu 🤍 gatos!')    
+  })
 })
